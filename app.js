@@ -1,7 +1,6 @@
 const createError = require('http-errors');
 const express = require('express');
 const mongoose = require('mongoose');
-const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const { format } = require('date-fns');
@@ -24,7 +23,6 @@ async function getApp () {
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
   app.use(cookieParser());
-  app.use(express.static(path.join(__dirname, 'public')));
 
   app.locals.format = format;
 
