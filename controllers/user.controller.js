@@ -7,7 +7,7 @@ const roles = require("../config/roles");
 const user = require("../models/user");
 // routes
 router.post("/authenticate", authenticate); // public route
-router.get("/", authorize(roles.Admin), getAll); // admin only
+router.get("/", authorize(roles.Admin, roles.User), getAll); // admin only
 router.post("/", createUser);
 router.get("/:id", authorize(roles.User), getById); // all authenticated users
 module.exports = router;
