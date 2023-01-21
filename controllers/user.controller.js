@@ -18,8 +18,14 @@ function authenticate(req, res, next) {
 }
 
 function getAll(req, res, next) {
+  let { page } = { ...req.query.page };
+
+  if (page === undefined || Number.isNaN(page)) {
+    page = 1;
+  }
+
   userService
-    .getAll()
+    .getAll(page)
     .then((users) => res.json(users))
     .catch((err) => next(err));
 }
@@ -57,7 +63,10 @@ function findUser(req, res, next) {
     .then((userFromDB) =>
       userFromDB ? res.json(userFromDB) : res.sendStatus(404)
     )
-    .catch((err) => next(err));
+    .catch((err) => {
+      console.log(err);
+      next(err);
+    });
 }
 
 function createUser(req, res, next) {

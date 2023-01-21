@@ -1,8 +1,10 @@
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
+const _ = require("underscore");
 const UserSchema = require("../models/user");
 const roles = require("../config/roles");
-// users hardcoded for simplicity, store in a db for production applications
+
+const nPerPage = 25;
 
 async function authenticate({ email, password }) {
   try {
@@ -33,8 +35,15 @@ async function authenticate({ email, password }) {
   }
 }
 
-async function getAll() {
-  return UserSchema.find({});
+async function getAll(page) {
+  const options = {
+    page: page,
+    limit: nPerPage,
+    sort: { created: -1 },
+    select: "-role",
+  };
+
+  return UserSchema.paginate({}, options);
 }
 
 async function getById(id) {
@@ -50,13 +59,20 @@ async function createUser(userData) {
   userData.joined = Date.now();
   const userToCreate = new UserSchema(userData);
 
-  return userToCreate
-    .save()
-    .then((user) => (({ password, ...other }) => other)(user))
-    .catch((error) => {
-      console.error(error);
-      return undefined;
-    });
+  return (
+    userToCreate
+      .save()
+      .then((user) => {
+        console.log("New user created!");
+
+        return _.omit(user.toObject(), "password", "_id", "__v");
+      })
+      // .then((user) => (({ password, ...other }) => other)(user))
+      .catch((error) => {
+        console.error(error);
+        return undefined;
+      })
+  );
 }
 
 module.exports = {

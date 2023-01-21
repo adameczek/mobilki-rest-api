@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcrypt");
+const paginate = require("mongoose-paginate-v2");
 const roles = require("../config/roles");
 
 const { Schema } = mongoose;
@@ -10,35 +11,56 @@ const isRole = function (userRoles) {
   Array.isArray(userRoles) && userRoles.every((role) => role in roles);
 };
 
-const UserSchema = new Schema({
-  firstname: {
-    type: String,
-    trim: true,
-  },
-  lastname: {
-    type: String,
-    trim: true,
-  },
-  email: {
-    type: String,
-    trim: true,
-    unique: true,
-    required: "Email address is required",
-    validate: [validator.isEmail, "Please fill a valid email address"],
-    index: {
+const UserSchema = new Schema(
+  {
+    firstname: {
+      type: String,
+      trim: true,
+    },
+    lastname: {
+      type: String,
+      trim: true,
+    },
+    email: {
+      type: String,
+      trim: true,
       unique: true,
+      required: "Email address is required",
+      validate: [validator.isEmail, "Please fill a valid email address"],
+      index: {
+        unique: true,
+      },
+    },
+    password: {
+      type: String,
+      select: false,
+    },
+    joined: {
+      type: Date,
+    },
+    role: {
+      type: Array,
+      validate: [isRole, "Please fill a valid role"],
     },
   },
-  password: {
-    type: String,
-    select: false,
-  },
-  joined: Date,
-  role: {
-    type: Array,
-    validate: [isRole, "Please fill a valid role"],
-  },
+  {
+    toObject: {
+      virtuals: true,
+    },
+    toJSON: {
+      virtuals: true,
+    },
+  }
+);
+
+UserSchema.virtual("posts", {
+  ref: "Post}",
+  localField: "_id",
+  foreignField: "postedBy",
+  options: { sort: { created: -1, limit: 10 } },
 });
+
+UserSchema.plugin(paginate);
 
 UserSchema.pre("save", function (next) {
   const user = this;

@@ -22,8 +22,11 @@
     "express": "~4.16.1",
     "express-jwt": "^8.3.0",
     "http-errors": "~1.6.3",
+    "jsonwebtoken": "^9.0.0",
     "mongoose": "^6.0.12",
+    "mongoose-paginate-v2": "^1.7.1",
     "morgan": "~1.9.1",
+    "underscore": "^1.13.6",
     "validator": "^13.7.0"
   },
   "devDependencies": {

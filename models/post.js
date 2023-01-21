@@ -1,28 +1,41 @@
-const mongoose = require('mongoose');
-
 const mongoose = require("mongoose");
-const validator = require("validator");
-const bcrypt = require("bcrypt");
-const roles = require("../config/roles");
+const paginate = require("mongoose-paginate-v2");
 
 const { Schema } = mongoose;
-const SALT_WORK_FACTOR = 10;
 
-const isRole = function (userRoles) {
-  Array.isArray(userRoles) && userRoles.every((role) => role in roles);
-};
-
-const UserSchema = new Schema({
-  content: {
-    type: String,
-    required: "Post content  is required"
-  },
-  postedBy: {
-    type: mongoose.Schema.Types.ObjectId,
-     ref: 'User',
-     required: 'Post user is required'
+const PostSchema = new Schema(
+  {
+    content: {
+      type: String,
+      required: "Post content  is required",
     },
-  created: Date,
+    postedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: "Post user is required",
+    },
+    created: {
+      type: Date,
+      index: true,
+      required: "Date cant be empty!",
+    },
+  },
+  {
+    toObject: {
+      virtuals: true,
+    },
+    toJSON: {
+      virtuals: true,
+    },
+  }
+);
+
+PostSchema.virtual("comments", {
+  ref: "Comment",
+  localField: "_id",
+  foreignField: "post",
+  options: { sort: { created: -1, limit: 3 } },
 });
+PostSchema.plugin(paginate);
 
 module.exports = mongoose.model("Post", PostSchema);

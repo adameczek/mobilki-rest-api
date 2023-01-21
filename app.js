@@ -16,7 +16,7 @@ const indexRouter = require("./routes/index");
 function normalizePort(val) {
   const port = parseInt(val, 10);
 
-  if (isNaN(port)) {
+  if (Number.isNaN(port)) {
     // named pipe
     return val;
   }
@@ -48,6 +48,7 @@ async function getApp() {
 
   app.use("/", indexRouter);
   app.use("/users", require("./controllers/user.controller"));
+  app.use("/posts", require("./controllers/post.controller"));
   // catch 404 and forward to error handler
   app.use((req, res, next) => {
     next(createError(404));
