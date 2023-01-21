@@ -4,28 +4,22 @@ const UserSchema = require("../models/user");
 const roles = require("../config/roles");
 // users hardcoded for simplicity, store in a db for production applications
 
-module.exports = {
-  authenticate,
-  getAll,
-  getById,
-  createUser,
-};
-
 async function authenticate({ email, password }) {
   try {
     const user = await UserSchema.findOne({ email: email })
       .select("+password")
       .exec();
-    console.log(user);
     if (user) {
-      console.log(arguments);
-      console.log(email);
-      console.log(`PAssword: ${password}, email: ${email}`);
       const compareResponse = await user.comparePassword(password);
       console.log(compareResponse);
 
       const token = jwt.sign(
-        { sub: user.id, role: user.role, email: user.email },
+        {
+          sub: user.id,
+          role: user.role,
+          email: user.email,
+          exp: Math.floor(Date.now() / 1000) + 60 * 60,
+        },
         process.env.JWT_SECRET
       );
       delete user.password;
@@ -35,7 +29,7 @@ async function authenticate({ email, password }) {
       };
     }
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 }
 
@@ -44,7 +38,11 @@ async function getAll() {
 }
 
 async function getById(id) {
-  return await UserSchema.find({ id: id }).exec();
+  return UserSchema.findOne({ _id: id }).exec();
+}
+
+async function getByEmail(email) {
+  return UserSchema.findOne({ email: email }).exec();
 }
 
 async function createUser(userData) {
@@ -52,5 +50,19 @@ async function createUser(userData) {
   userData.joined = Date.now();
   const userToCreate = new UserSchema(userData);
 
-  return userToCreate.save();
+  return userToCreate
+    .save()
+    .then((user) => (({ password, ...other }) => other)(user))
+    .catch((error) => {
+      console.error(error);
+      return undefined;
+    });
 }
+
+module.exports = {
+  authenticate,
+  getAll,
+  getById,
+  getByEmail,
+  createUser,
+};
