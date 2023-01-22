@@ -53,7 +53,7 @@ const UserSchema = new Schema(
   }
 );
 
-UserSchema.virtual("posts", {
+UserSchema.virtual("last10posts", {
   ref: "Post}",
   localField: "_id",
   foreignField: "postedBy",

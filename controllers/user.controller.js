@@ -80,9 +80,37 @@ function createUser(req, res, next) {
     .catch((err) => next(err));
 }
 
+function addRoles(req, res, next) {
+  const { roles } = req.body;
+  return userService
+    .addRole(req.params.id, roles)
+    .then((result) => res.json(result))
+    .catch((error) => next(error));
+}
+
+function updateUser(req, res, next) {
+  const { role, sub } = req.auth;
+
+  if (
+    role.includes(roles.Admin) ||
+    (role.includes(roles.User) && sub === req.parmas.id)
+  ) {
+    return userService
+      .updateUser(req.body)
+      .then((result) => res.json(result))
+      .catch((err) => next(err));
+  }
+
+  return res
+    .status(401)
+    .json({ error: "insufficient roles to update this user" });
+}
+
 // routes
 router.post("/authenticate", authenticate); // public route
 router.get("/", authorize(roles.User), getAll);
 router.post("/", createUser);
 router.get("/user", authorize(roles.User), findUser); // all authenticated users
+router.put("/user/:id", authorize(roles.User), updateUser);
+router.post("user/:id/addRole", authorize(roles.Admin), addRoles);
 module.exports = router;

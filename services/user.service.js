@@ -40,7 +40,7 @@ async function getAll(page) {
     page: page,
     limit: nPerPage,
     sort: { created: -1 },
-    select: "-role",
+    select: ["-role"],
   };
 
   return UserSchema.paginate({}, options);
@@ -75,10 +75,41 @@ async function createUser(userData) {
   );
 }
 
+async function updateUser(userId, userData) {
+  const validUserData = _.omit(userData, "_id", "__v", "joined", "role");
+
+  return UserSchema.updateOne({ _id: userId }, { $set: validUserData }).catch(
+    (err) => {
+      console.error(err);
+      throw err;
+    }
+  );
+}
+
+async function addRole(userId, newRoles) {
+  if (typeof newRoles === "string") {
+    newRoles = [newRoles];
+  }
+
+  if (newRoles.any((role) => !roles.includes(role))) {
+    return Promise.reject(new Error("Incorrect roles"));
+  }
+
+  return UserSchema.updateOne(
+    { _id: userId },
+    { $addToSet: { role: newRoles } }
+  ).catch((err) => {
+    console.error(err);
+    throw err;
+  });
+}
+
 module.exports = {
   authenticate,
   getAll,
   getById,
   getByEmail,
   createUser,
+  updateUser,
+  addRole,
 };

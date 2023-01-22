@@ -30,11 +30,11 @@ const PostSchema = new Schema(
   }
 );
 
-PostSchema.virtual("comments", {
+PostSchema.virtual("last10comments", {
   ref: "Comment",
   localField: "_id",
   foreignField: "post",
-  options: { sort: { created: -1, limit: 3 } },
+  options: { sort: { created: -1 }, limit: 10 },
 });
 PostSchema.plugin(paginate);
 

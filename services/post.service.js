@@ -17,18 +17,31 @@ async function getPosts(page) {
   const options = {
     page: page,
     limit: nPerPage,
-    lean: false,
     sort: { created: -1 },
+    options: { populate: "last10comments" },
   };
 
   return PostSchema.paginate({}, options);
 }
 
-async function deletePost(postId) {
-  return PostSchema.deleteOne({ _id: postId }).catch((err) => {
-    console.error(err);
-    throw err;
-  });
+async function deletePost(postId, userId) {
+  const query = _.omit({ _id: postId, postedBy: userId }, (value) =>
+    _.isUndefined(value)
+  );
+
+  return PostSchema.deleteOne(query)
+    .exec()
+    .then((result) => {
+      if (result.deletedCount === 1) {
+        CommentSchema.deleteMany({ post: postId }).exec();
+      }
+
+      return result;
+    })
+    .catch((err) => {
+      console.error(err);
+      throw err;
+    });
 }
 
 async function addCommentToPost(postId, comment) {
@@ -47,7 +60,23 @@ async function getPostcomments(postId, page) {
     sort: { created: -1 },
   };
 
-  return CommentSchema.paginate({ _id: postId }, options);
+  return CommentSchema.paginate({ post: postId }, options);
+}
+
+async function deleteComment(postId, commentId, userId) {
+  const query = _.omit(
+    { _id: commentId, post: postId, postedBy: userId },
+    (value) => _.isUndefined(value)
+  );
+
+  const result = await CommentSchema.deleteOne(query)
+    .exec()
+    .catch((err) => {
+      console.error(err);
+      throw err;
+    });
+
+  return result.deletedCount === 1;
 }
 
 module.exports = {
@@ -57,4 +86,5 @@ module.exports = {
   deletePost,
   addCommentToPost,
   getPostcomments,
+  deleteComment,
 };

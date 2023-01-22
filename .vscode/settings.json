@@ -1,6 +1,9 @@
 {
   "editor.wordWrap": "on",
   "git.ignoreLimitWarning": true,
+  "editor.fontFamily": "Fira Code",
+  "editor.fontSize": 14,
+  "editor.fontWeight": "normal",
   "editor.fontLigatures": true,
   "eslint.format.enable": true,
   "editor.codeActionsOnSave": {
