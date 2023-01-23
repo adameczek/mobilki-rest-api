@@ -51,7 +51,6 @@ async function getAll(page) {
     page: page,
     limit: nPerPage,
     sort: { created: -1 },
-    select: ["-role"],
   };
 
   return UserSchema.paginate({}, options);
