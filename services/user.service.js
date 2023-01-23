@@ -34,6 +34,7 @@ async function authenticate({ email, password }) {
         "lastname",
         "email",
         "joined",
+        "role",
       ]);
 
       return {
