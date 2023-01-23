@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcrypt");
 const paginate = require("mongoose-paginate-v2");
+const _ = require("underscore");
 const roles = require("../config/roles");
 
 const { Schema } = mongoose;
@@ -16,10 +17,14 @@ const UserSchema = new Schema(
     firstname: {
       type: String,
       trim: true,
+      min: 1,
+      max: 100,
     },
     lastname: {
       type: String,
       trim: true,
+      min: 1,
+      max: 100,
     },
     email: {
       type: String,
@@ -60,27 +65,31 @@ UserSchema.virtual("last10posts", {
   options: { sort: { created: -1, limit: 10 } },
 });
 
-UserSchema.plugin(paginate);
+function hashPassword(password) {
+  return bcrypt
+    .genSalt(SALT_WORK_FACTOR)
+    .then((salt) => bcrypt.hash(password, salt));
+}
 
+UserSchema.plugin(paginate);
 UserSchema.pre("save", function (next) {
   const user = this;
 
   // only hash the password if it has been modified (or is new)
   if (!user.isModified("password")) return next();
 
-  // generate a salt
-  bcrypt.genSalt(SALT_WORK_FACTOR, (err, salt) => {
-    if (err) return next(err);
+  return hashPassword(user.password)
+    .then((hashedPassword) => {
+      user.password = hashedPassword;
+    })
+    .then(() => next())
+    .catch((error) => next(error));
+});
+UserSchema.pre("updateOne", function (next) {
+  const user = this;
+  const update = user._update.$set;
 
-    // hash the password using our new salt
-    bcrypt.hash(user.password, salt, (err, hash) => {
-      if (err) return next(err);
-
-      // override the cleartext password with the hashed one
-      user.password = hash;
-      next();
-    });
-  });
+  if (_.has()) next();
 });
 
 UserSchema.methods.comparePassword = function (candidatePassword) {

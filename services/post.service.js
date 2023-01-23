@@ -18,7 +18,7 @@ async function getPosts(page) {
     page: page,
     limit: nPerPage,
     sort: { created: -1 },
-    options: { populate: "last10comments" },
+    options: { populate: ["last10comments", "postedBy"] },
   };
 
   return PostSchema.paginate({}, options);

@@ -75,15 +75,18 @@ async function createUser(userData) {
   );
 }
 
-async function updateUser(userId, userData) {
-  const validUserData = _.omit(userData, "_id", "__v", "joined", "role");
+async function updateUser(userId, { firstname, lastname, password, email }) {
+  const validUserData = _.omit(
+    { firstname, lastname, password, email },
+    (value) => _.isUndefined(value)
+  );
 
-  return UserSchema.updateOne({ _id: userId }, { $set: validUserData }).catch(
-    (err) => {
+  return UserSchema.updateOne({ _id: userId }, { $set: validUserData })
+    .then((res) => ({ success: res.modifiedCount === 1 }))
+    .catch((err) => {
       console.error(err);
       throw err;
-    }
-  );
+    });
 }
 
 async function addRole(userId, newRoles) {

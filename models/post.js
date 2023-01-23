@@ -7,6 +7,8 @@ const PostSchema = new Schema(
   {
     content: {
       type: String,
+      min: 1,
+      max: 256,
       required: "Post content  is required",
     },
     postedBy: {
