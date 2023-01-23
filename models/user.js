@@ -89,7 +89,7 @@ UserSchema.pre("updateOne", function (next) {
   const user = this;
   const update = user._update.$set;
 
-  if (_.has(update, "password")) {
+  if (update !== undefined && _.has(update, "password")) {
     hashPassword(update.password)
       .then((result) => {
         this._update.$set.password = result;

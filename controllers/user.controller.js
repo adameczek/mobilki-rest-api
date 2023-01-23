@@ -80,11 +80,11 @@ function createUser(req, res, next) {
 }
 
 function addRoles(req, res, next) {
-  // const { roles } = req.body;
-  // return userService
-  //   .addRole(req.params.id, roles)
-  //   .then((result) => res.json(result))
-  //   .catch((error) => next(error));
+  const newRoles = req.body.roles;
+  return userService
+    .addRole(req.params.id, newRoles)
+    .then((result) => res.json(result))
+    .catch((error) => next(error));
 }
 
 function updateUser(req, res, next) {
@@ -144,7 +144,7 @@ router.get("/", authorize(roles.User), getAll);
 router.post("/", createUser);
 router.get("/user", authorize(roles.User), findUser); // all authenticated users
 router.put("/user/:id", authorize(roles.User), updateUser);
-router.post("user/:id/addRole", authorize(roles.Admin), addRoles);
+router.post("/user/:id/roles", authorize(roles.Admin), addRoles);
 router.get("/roles", authorize(roles.User), getAllRoles);
 router.get("/user/:id/posts", authorize(roles.User), getUserPosts);
 router.post("/search", authorize(roles.User), searchForUsers);

@@ -37,7 +37,7 @@ async function authenticate({ email, password }) {
       ]);
 
       return {
-        userToReturn,
+        user: userToReturn,
         token,
       };
     }
@@ -101,11 +101,11 @@ async function updateUser(userId, { firstname, lastname, password, email }) {
 }
 
 async function addRole(userId, newRoles) {
-  if (typeof newRoles === "string") {
+  if (!Array.isArray(newRoles)) {
     newRoles = [newRoles];
   }
 
-  if (newRoles.any((role) => !roles.includes(role))) {
+  if (newRoles.some((role) => !roles.hasOwnProperty(role))) {
     return Promise.reject(new Error("Incorrect roles"));
   }
 
