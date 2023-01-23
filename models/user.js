@@ -89,7 +89,17 @@ UserSchema.pre("updateOne", function (next) {
   const user = this;
   const update = user._update.$set;
 
-  if (_.has()) next();
+  if (_.has(update, "password")) {
+    hashPassword(update.password)
+      .then((result) => {
+        this._update.$set.password = result;
+        console.log(update);
+        console.log(this._update.$set);
+      })
+      .then(() => next());
+  } else {
+    next();
+  }
 });
 
 UserSchema.methods.comparePassword = function (candidatePassword) {

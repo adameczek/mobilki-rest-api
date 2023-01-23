@@ -2,6 +2,7 @@ require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const _ = require("underscore");
 const UserSchema = require("../models/user");
+const PostSchema = require("../models/post");
 const roles = require("../config/roles");
 
 const nPerPage = 25;
@@ -15,6 +16,9 @@ async function authenticate({ email, password }) {
       const compareResponse = await user.comparePassword(password);
       console.log(compareResponse);
 
+      if (!compareResponse) {
+        return { error: "Brak autoryzacji!" };
+      }
       const token = jwt.sign(
         {
           sub: user.id,
@@ -24,9 +28,16 @@ async function authenticate({ email, password }) {
         },
         process.env.JWT_SECRET
       );
-      delete user.password;
+      const userToReturn = _.pick(user, [
+        "_id",
+        "firstname",
+        "lastname",
+        "email",
+        "joined",
+      ]);
+
       return {
-        user,
+        userToReturn,
         token,
       };
     }
@@ -107,6 +118,55 @@ async function addRole(userId, newRoles) {
   });
 }
 
+async function getUserPosts(userId, page) {
+  const options = {
+    page: page,
+    limit: nPerPage,
+    sort: { created: -1 },
+    select: ["-role"],
+  };
+
+  return PostSchema.paginate({ postedBy: userId }, options);
+}
+
+function onlyLettersAndSpaces(str) {
+  return /[a-zA-Z.@]*/.test(str);
+}
+
+function searchForUsers(query, page) {
+  const options = {
+    page: page,
+    limit: nPerPage,
+    sort: { created: -1 },
+    select: ["-role"],
+  };
+
+  const queryForUsers = {
+    $regex: query,
+    $options: "i",
+  };
+
+  return new Promise((resolve, reject) => {
+    if (!onlyLettersAndSpaces(query))
+      reject(new Error("Niepoprawne znaki w zapytaniu!"));
+
+    UserSchema.paginate(
+      {
+        $or: [
+          { firstname: queryForUsers },
+          { lastname: queryForUsers },
+          { email: queryForUsers },
+        ],
+      },
+      options
+    )
+      .then((result) => resolve(result))
+      .catch((error) => {
+        console.err(error);
+        return error;
+      });
+  });
+}
 module.exports = {
   authenticate,
   getAll,
@@ -115,4 +175,6 @@ module.exports = {
   createUser,
   updateUser,
   addRole,
+  getUserPosts,
+  searchForUsers,
 };

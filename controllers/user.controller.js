@@ -6,13 +6,12 @@ const authorize = require("../services/authorization.service");
 const roles = require("../config/roles");
 
 function authenticate(req, res, next) {
-  console.log(req.body);
   userService
     .authenticate(req.body)
     .then((user) =>
       user
         ? res.json(user)
-        : res.status(400).json({ message: "Username or password is incorrect" })
+        : res.status(400).json({ message: "Niespodziewany błąd nastąpił" })
     )
     .catch((err) => next(err));
 }
@@ -110,6 +109,35 @@ function getAllRoles(req, res, next) {
   return res.json(roles);
 }
 
+function getUserPosts(req, res, next) {
+  let { page } = { ...req.query.page };
+
+  if (page === undefined || Number.isNaN(page)) {
+    page = 1;
+  }
+
+  userService
+    .getUserPosts(req.params.id, page)
+    .then((result) => res.json(result))
+    .catch((error) =>
+      res.status(400).json({ error: "nastąpil niespodziewany błąd" })
+    );
+}
+
+function searchForUsers(req, res, next) {
+  const { query } = req.body;
+  let { page } = { ...req.query.page };
+
+  if (page === undefined || Number.isNaN(page)) {
+    page = 1;
+  }
+
+  userService
+    .searchForUsers(query, page)
+    .then((result) => res.json(result))
+    .catch((error) => res.status(400).json({ error: error.message }));
+}
+
 // routes
 router.post("/authenticate", authenticate); // public route
 router.get("/", authorize(roles.User), getAll);
@@ -118,4 +146,6 @@ router.get("/user", authorize(roles.User), findUser); // all authenticated users
 router.put("/user/:id", authorize(roles.User), updateUser);
 router.post("user/:id/addRole", authorize(roles.Admin), addRoles);
 router.get("/roles", authorize(roles.User), getAllRoles);
+router.get("/user/:id/posts", authorize(roles.User), getUserPosts);
+router.post("/search", authorize(roles.User), searchForUsers);
 module.exports = router;
