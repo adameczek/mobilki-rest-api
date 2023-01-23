@@ -54,7 +54,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"firstname\": \"new\",\r\n    \"lastname\": \"user\",\r\n    \"email\": \"newuser@gmail.com\",\r\n    \"password\": \"dupa\"\r\n}",
+					"raw": "{\r\n    \"firstname\": \"new\",\r\n    \"lastname\": \"user\",\r\n    \"email\": \"a@gmail.com\",\r\n    \"password\": \"dupa\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -104,6 +104,46 @@
 							"key": "email",
 							"value": "adam2sawicki@gmail.com",
 							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get user posts",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Auth",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2M2M5OGM2NjllMmMwMmM3NDMwMzVmZGQiLCJyb2xlIjpbIlVzZXIiXSwiZW1haWwiOiJhZGFtMnNhd2lja2lAZ21haWwuY29tIiwiZXhwIjoxNjc0MzAzMjAzLCJpYXQiOjE2NzQyOTk2MDN9.jfdb0CZuArmSjz5HxjI48jijAY-aimXYBn14c8hTjv0",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "{{host}}/users/user/:id/posts",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"users",
+						"user",
+						":id",
+						"posts"
+					],
+					"query": [
+						{
+							"key": "email",
+							"value": "adam2sawicki@gmail.com",
+							"disabled": true
+						}
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": null
 						}
 					]
 				}
@@ -340,6 +380,68 @@
 			"request": {
 				"method": "GET",
 				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "search for users",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"password\": \"dupa1\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/users/search",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"users",
+						"search"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add roles",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"roles\": [\"Admin\"]\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/users/user/:id/roles",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"users",
+						"user",
+						":id",
+						"roles"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "63cbc48168b9a5badeb8e7f4"
+						}
+					]
+				}
 			},
 			"response": []
 		}
