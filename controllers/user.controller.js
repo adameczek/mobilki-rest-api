@@ -80,10 +80,10 @@ function createUser(req, res, next) {
 }
 
 function addRoles(req, res, next) {
-  const newRoles = req.body.roles;
+  const newRole = req.body.role;
   return userService
-    .addRole(req.params.id, newRoles)
-    .then((result) => res.json(result))
+    .addRole(req.params.id, newRole)
+    .then((result) => res.json({ success: result }))
     .catch((error) => next(error));
 }
 

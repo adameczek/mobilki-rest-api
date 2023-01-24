@@ -100,22 +100,17 @@ async function updateUser(userId, { firstname, lastname, password, email }) {
     });
 }
 
-async function addRole(userId, newRoles) {
-  if (!Array.isArray(newRoles)) {
-    newRoles = [newRoles];
-  }
-
-  if (newRoles.some((role) => !roles.hasOwnProperty(role))) {
+async function addRole(userId, newRole) {
+  if (!_.has(roles, newRole)) {
     return Promise.reject(new Error("Incorrect roles"));
   }
 
-  return UserSchema.updateOne(
-    { _id: userId },
-    { $addToSet: { role: newRoles } }
-  ).catch((err) => {
-    console.error(err);
-    throw err;
-  });
+  return UserSchema.updateOne({ _id: userId }, { $addToSet: { role: newRole } })
+    .then((result) => result.modifiedCount === 1)
+    .catch((err) => {
+      console.error(err);
+      throw err;
+    });
 }
 
 async function getUserPosts(userId, page) {

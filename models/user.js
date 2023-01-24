@@ -85,6 +85,7 @@ UserSchema.pre("save", function (next) {
     .then(() => next())
     .catch((error) => next(error));
 });
+
 UserSchema.pre("updateOne", function (next) {
   const user = this;
   const update = user._update.$set;
