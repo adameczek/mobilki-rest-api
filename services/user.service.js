@@ -118,7 +118,7 @@ async function getUserPosts(userId, page) {
     page: page,
     limit: nPerPage,
     sort: { created: -1 },
-    select: ["-role"],
+    options: { populate: ["last10comments", "postedBy"] },
   };
 
   return PostSchema.paginate({ postedBy: userId }, options);
