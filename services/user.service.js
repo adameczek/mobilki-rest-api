@@ -128,36 +128,45 @@ function onlyLettersAndSpaces(str) {
   return /[a-zA-Z.@]*/.test(str);
 }
 
-function searchForUsers(query, page) {
-  const options = {
-    page: page,
-    limit: nPerPage,
-    sort: { created: -1 },
-    select: ["-role"],
-  };
-
-  const queryForUsers = {
-    $regex: query,
-    $options: "i",
-  };
-
+function searchForUsers(fullQuery, page) {
   return new Promise((resolve, reject) => {
-    if (!onlyLettersAndSpaces(query))
+    if (!onlyLettersAndSpaces(fullQuery))
       reject(new Error("Niepoprawne znaki w zapytaniu!"));
+
+    const options = {
+      page: page,
+      limit: nPerPage,
+      sort: { created: -1 },
+      select: ["-role"],
+    };
+
+    const queryForUsers = (query) => ({
+      $regex: query,
+      $options: "i",
+    });
+
+    const searchQuery = (value) => [
+      { firstname: value },
+      { lastname: value },
+      { email: value },
+    ];
+
+    const queries = fullQuery
+      .split(" ")
+      .map((part) => queryForUsers(part))
+      .map((part) => searchQuery(part));
+
+    const joinedQueriesObj = [].concat(...queries);
 
     UserSchema.paginate(
       {
-        $or: [
-          { firstname: queryForUsers },
-          { lastname: queryForUsers },
-          { email: queryForUsers },
-        ],
+        $or: joinedQueriesObj,
       },
       options
     )
       .then((result) => resolve(result))
       .catch((error) => {
-        console.err(error);
+        console.error(error);
         return error;
       });
   });

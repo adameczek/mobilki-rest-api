@@ -58,6 +58,7 @@ async function getPostcomments(postId, page) {
     page: page,
     limit: nPerPage,
     sort: { created: -1 },
+    options: { populate: ["postedBy"] },
   };
 
   return CommentSchema.paginate({ post: postId }, options);
