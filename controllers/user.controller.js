@@ -92,7 +92,7 @@ function updateUser(req, res, next) {
 
   if (
     role.includes(roles.Admin) ||
-    (role.includes(roles.User) && sub === req.req.params.id)
+    (role.includes(roles.User) && sub === req.params.id)
   ) {
     return userService
       .updateUser(req.params.id, req.body)
